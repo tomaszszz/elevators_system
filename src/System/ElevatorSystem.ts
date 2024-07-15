@@ -13,8 +13,6 @@ export interface ClosestElevatorData {
 export class ElevatorSystem implements ElevatorSystemOperations {
     private elevators: Elevator[] = [];
 
-    private callsQueue: Queue<Call> = new Queue();
-
     private elevatorsCount: number = 0;
     private floorsCount: number = 0;
 
@@ -31,8 +29,8 @@ export class ElevatorSystem implements ElevatorSystemOperations {
                 const singleElevator = {
                     id,
                     floor: 0,
-                    targetFloor: 0,
                     direction: Direction.IDLE,
+                    callsQueue: new Queue<Call>(),
                 };
                 this.elevators.push(singleElevator);
             }
@@ -44,18 +42,7 @@ export class ElevatorSystem implements ElevatorSystemOperations {
     // TODO: separate queues for each elevator
 
     step() {
-        // for (const call of this.callsQueue) {
-        const call = this.callsQueue.dequeue();
-        if (call) {
-            const closestElevator = this.findClosestElevatorTravellingInSameDirection(call) || this.findAnyClosestElevator(call);
-            // console.log('CLOSEST ELEVATOR: \n', closestElevator);
-
-            this.update(closestElevator.id, call.targetFloor, call.direction);
-            // console.log(this.state());
-        } else {
-            throw new Error('Calls queue is empty');
-        }
-        // }
+        this.update();
     }
 
     private findClosestElevatorTravellingInSameDirection(call: Call): Elevator | undefined {
@@ -69,11 +56,19 @@ export class ElevatorSystem implements ElevatorSystemOperations {
             const isOnTheWayUp = call.direction === Direction.UP && call.targetFloor > elevator.floor;
             const isOnTheWayDown = call.direction === Direction.DOWN && call.targetFloor < elevator.floor;
 
-            if (elevator.direction === call.direction && (isOnTheWayUp || isOnTheWayDown) && floorDiff < minDiff) {
+            console.log('elevatorId: ', elevator.id);
+            console.log('isUp: ', isOnTheWayUp);
+            console.log('isDown: ', isOnTheWayDown);
+
+            if (
+                (elevator.direction === call.direction && (isOnTheWayUp || isOnTheWayDown) && floorDiff < minDiff) ||
+                (elevator.direction === Direction.IDLE && floorDiff < minDiff)
+            ) {
+                console.log('CLOSEST ON THE WAY:', floorDiff, minDiff);
                 minDiff = floorDiff;
                 closestElevator = elevator;
+                isAnyFound = true;
             }
-            console.log('CLOSEST ON THE WAY:', floorDiff, minDiff);
         });
 
         if (isAnyFound) {
@@ -101,29 +96,19 @@ export class ElevatorSystem implements ElevatorSystemOperations {
 
     call(targetFloor: number, direction: Direction): void {
         const call: Call = { targetFloor, direction };
-        if ((direction <= 2 || direction >= 0) && targetFloor < this.floorsCount) {
-            this.callsQueue.enqueue(call);
+        if ([0, 1, 2].includes(direction) && targetFloor < this.floorsCount) {
+            const closestElevator = this.findClosestElevatorTravellingInSameDirection(call) || this.findAnyClosestElevator(call);
+            closestElevator.callsQueue.enqueue(call);
         } else {
             throw new Error('Incorrect call');
         }
     }
 
-    update(elevatorId: string, targetFloor: number, direction: Direction): void {
+    update(): void {
         this.elevators = this.elevators.map((elevator) => {
-            if (elevator.id === elevatorId) {
-                if (elevator.targetFloor) {
-                    elevator.floor = elevator.targetFloor;
-                }
-                return { ...elevator, targetFloor, direction };
-            }
-            return elevator;
-        });
-    }
-
-    moveElevator(elevatorId: string, floor: number): void {
-        this.elevators = this.elevators.map((elevator) => {
-            if (elevator.id === elevatorId) {
-                return { ...elevator, floor };
+            const call = elevator.callsQueue.dequeue();
+            if (call) {
+                return { ...elevator, floor: call.targetFloor, direction: call.direction };
             }
             return elevator;
         });
