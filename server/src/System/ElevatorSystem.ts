@@ -1,9 +1,8 @@
-import e from 'express';
 import { Elevator } from '../Elevator/Elevator';
 import { ElevatorSystemOperations } from './ElevatorSystemOperations';
 import { Queue } from '../Common/Queue';
 import { Direction } from '../Elevator/Direction';
-import { Call } from '../Common/CallDisposition';
+import { Call, CallFromElevator } from '../Common/CallDisposition';
 
 export interface ClosestElevatorData {
     id: string;
@@ -39,10 +38,16 @@ export class ElevatorSystem implements ElevatorSystemOperations {
         }
     }
 
-    // TODO: separate queues for each elevator
-
     step() {
-        this.update();
+        this.elevators = this.elevators.map((elevator) => {
+            const call = elevator.callsQueue.dequeue();
+            if (call) {
+                const isLastCall = elevator.callsQueue.getValues().length === 0;
+                const direction = elevator.floor === call.targetFloor || isLastCall ? Direction.IDLE : call.direction;
+                return { ...elevator, floor: call.targetFloor, direction };
+            }
+            return { ...elevator, direction: Direction.IDLE };
+        });
     }
 
     private findClosestElevatorTravellingInSameDirection(call: Call): Elevator | undefined {
@@ -56,15 +61,10 @@ export class ElevatorSystem implements ElevatorSystemOperations {
             const isOnTheWayUp = call.direction === Direction.UP && call.targetFloor > elevator.floor;
             const isOnTheWayDown = call.direction === Direction.DOWN && call.targetFloor < elevator.floor;
 
-            console.log('elevatorId: ', elevator.id);
-            console.log('isUp: ', isOnTheWayUp);
-            console.log('isDown: ', isOnTheWayDown);
-
             if (
                 (elevator.direction === call.direction && (isOnTheWayUp || isOnTheWayDown) && floorDiff < minDiff) ||
                 (elevator.direction === Direction.IDLE && floorDiff < minDiff)
             ) {
-                console.log('CLOSEST ON THE WAY:', floorDiff, minDiff);
                 minDiff = floorDiff;
                 closestElevator = elevator;
                 isAnyFound = true;
@@ -88,33 +88,47 @@ export class ElevatorSystem implements ElevatorSystemOperations {
                 minDiff = floorDiff;
                 closest = elevator;
             }
-            console.log('CLOSEST: ', floorDiff, minDiff);
         });
 
         return closest;
     }
 
-    call(targetFloor: number, direction: Direction): void {
+    private findElevatorOnSameLevel(call: Call): Elevator | undefined {
+        return this.elevators.find((elevator) => elevator.floor === call.targetFloor);
+    }
+
+    callFromHallway(targetFloor: number, direction: Direction): void {
         const call: Call = { targetFloor, direction };
-        if ([0, 1, 2].includes(direction) && targetFloor < this.floorsCount) {
-            const closestElevator = this.findClosestElevatorTravellingInSameDirection(call) || this.findAnyClosestElevator(call);
-            closestElevator.callsQueue.enqueue(call);
+
+        if ([0, 1, 2].includes(direction) && targetFloor <= this.floorsCount) {
+            const closestElevator =
+                this.findElevatorOnSameLevel(call) ||
+                this.findClosestElevatorTravellingInSameDirection(call) ||
+                this.findAnyClosestElevator(call);
+
+            closestElevator.callsQueue.enqueue({ targetFloor: call.targetFloor, direction: call.direction });
         } else {
             throw new Error('Incorrect call');
         }
     }
 
-    update(): void {
-        this.elevators = this.elevators.map((elevator) => {
-            const call = elevator.callsQueue.dequeue();
-            if (call) {
-                return { ...elevator, floor: call.targetFloor, direction: call.direction };
-            }
-            return elevator;
-        });
+    callFromElevator(elevatorId: string, targetFloor: number): void {
+        const call: CallFromElevator = { elevatorId, targetFloor };
+
+        if (targetFloor <= this.floorsCount) {
+            this.elevators.forEach((elevator) => {
+                if (elevator.id === call.elevatorId) {
+                    const direction: Direction =
+                        call.targetFloor < (elevator.callsQueue.peek()?.targetFloor || elevator.floor) ? Direction.DOWN : Direction.UP;
+                    return elevator.callsQueue.enqueue({ targetFloor: call.targetFloor, direction });
+                }
+            });
+        } else {
+            throw new Error('Incorrect call');
+        }
     }
 
-    state(): Elevator[] {
-        return this.elevators;
+    state(): { floorsCount: number; elevators: Elevator[] } {
+        return { floorsCount: this.floorsCount, elevators: this.elevators };
     }
 }
