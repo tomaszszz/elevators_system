@@ -1,0 +1,17 @@
+<form [formGroup]="directionPanel" class="keypad">
+    <mat-form-field>
+        <mat-label>Choose floor</mat-label>
+        <mat-select formControlName="floor">
+            <mat-option *iterateNTimes="floorsCount; index as floor" [value]="floor"> {{ floor }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Choose direction</mat-label>
+        <mat-select formControlName="direction">
+            <mat-option [value]="1"> Up </mat-option>
+            <mat-option [value]="2"> Down </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <button mat-stroked-button color="primary" (click)="submitCall()">Submit call</button>
+</form>

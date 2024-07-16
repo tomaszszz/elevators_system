@@ -1,0 +1,14 @@
+<form [formGroup]="keypadForm" class="keypad">
+    <mat-form-field>
+        <mat-label>Choose elevator</mat-label>
+        <mat-select formControlName="elevatorId">
+            <mat-option *ngFor="let elevator of elevators" [value]="elevator.id">{{ elevator.id }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Enter target floor</mat-label>
+        <input matInput placeholder="Floor" formControlName="targetFloor" />
+    </mat-form-field>
+    <button mat-stroked-button color="primary" (click)="submitCall()">Submit call</button>
+</form>
