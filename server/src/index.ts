@@ -1,7 +1,7 @@
-import express, { Express, Request, Response } from 'express';
-import dotenv from 'dotenv';
-import { ElevatorSystem } from './System/ElevatorSystem';
 import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
+import express, { Express, Request, Response } from 'express';
+import { ElevatorSystem } from './System/ElevatorSystem';
 
 dotenv.config();
 
@@ -26,6 +26,17 @@ app.get('/step', (req: Request, res: Response) => {
 
 app.get('/state', (req: Request, res: Response) => {
     res.send(elevatorSystem.state());
+});
+
+app.get('/elevatorQueue', (req: Request, res: Response) => {
+    const id = req.query.id as string;
+
+    res.send(
+        elevatorSystem
+            .state()
+            .elevators.find((elevator) => elevator.id === id)
+            ?.callsQueue.getValues()
+    );
 });
 
 app.post('/callFromElevator', (req: Request, res: Response) => {

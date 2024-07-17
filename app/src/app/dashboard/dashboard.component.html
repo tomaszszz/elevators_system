@@ -1,34 +1,58 @@
 <mat-toolbar>
-    <span>elevator system simulator</span>
+  <span>elevator system simulator</span>
 </mat-toolbar>
 <div class="grid">
-    <div class="panels">
-        <mat-tab-group>
-            <mat-tab>
-                <ng-template mat-tab-label> <mat-icon class="tab-icon">elevator</mat-icon> Elevator Keypad </ng-template>
-                <app-keypad [elevators]="elevators" class="panel"></app-keypad>
-            </mat-tab>
+  <div class="panels">
+    <mat-tab-group>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">elevator</mat-icon> Elevator Keypad
+        </ng-template>
+        <app-keypad
+          (elevatorChange)="onElevatorChange($event)"
+          [elevators]="elevators"
+          class="panel"
+        ></app-keypad>
+      </mat-tab>
 
-            <mat-tab>
-                <ng-template mat-tab-label> <mat-icon class="tab-icon">directions_walk</mat-icon> Hallway panel </ng-template>
-                <app-direction-panel [floorsCount]="floorsCount" class="panel"></app-direction-panel>
-            </mat-tab>
-        </mat-tab-group>
-        <button mat-flat-button color="accent" (click)="step()" class="step-button">Simulate step</button>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">directions_walk</mat-icon> Hallway panel
+        </ng-template>
+        <app-direction-panel
+          [floorsCount]="floorsCount"
+          class="panel"
+        ></app-direction-panel>
+      </mat-tab>
+    </mat-tab-group>
+    <button mat-flat-button color="accent" (click)="step()" class="step-button">
+      Simulate step
+    </button>
+    <div *ngFor="let call of currentQueue | async">
+      {{ call.targetFloor }}
     </div>
-    <div class="building">
-        <div class="floor" *iterateNTimes="floorsCount; index as floor">
-            <span class="label"> {{ floor }}</span>
-            <app-elevator
-                *ngFor="let elevator of elevators"
-                class="elevator"
-                [ngClass]="floor === elevator.floor ? '' : 'hide'"
-                [elevator]="elevator"
-            >
-                {{ elevator.id }}
-                <mat-icon [fontIcon]="elevator.direction === 1 ? 'arrow_upward' : elevator.direction === 2 ? 'arrow_downward' : ''">
-                </mat-icon>
-            </app-elevator>
-        </div>
+  </div>
+  <div class="building">
+    <div class="floor" *iterateNTimes="floorsCount; index as floor">
+      <span class="label"> {{ floor }}</span>
+      <app-elevator
+        *ngFor="let elevator of elevators"
+        class="elevator"
+        [ngClass]="floor === elevator.floor ? '' : 'hide'"
+        [elevator]="elevator"
+      >
+        {{ elevator.id }}
+        <mat-icon
+          [fontIcon]="
+            elevator.direction === 1
+              ? 'arrow_upward'
+              : elevator.direction === 2
+              ? 'arrow_downward'
+              : ''
+          "
+        >
+        </mat-icon>
+      </app-elevator>
     </div>
+  </div>
 </div>
