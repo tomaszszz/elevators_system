@@ -42,6 +42,7 @@ export class KeypadComponent {
   @Input() elevators!: Elevator[];
 
   @Output() elevatorChange = new EventEmitter<string>();
+  @Output() onCallSubmitted = new EventEmitter<void>();
 
   callInsideElevator: CallInsideElevator = { elevatorId: '1', targetFloor: 0 };
 
@@ -57,6 +58,7 @@ export class KeypadComponent {
       this.elevatorService
         .callFromElevator(this.keypadForm.value)
         .subscribe(() => {
+          this.onCallSubmitted.next();
           const id = this.keypadForm.get('elevatorId')?.value;
           if (id) {
             this.elevatorChange.next(id);

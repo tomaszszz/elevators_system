@@ -10,6 +10,7 @@
         </ng-template>
         <app-keypad
           (elevatorChange)="onElevatorChange($event)"
+          (onCallSubmitted)="updateState()"
           [elevators]="elevators"
           class="panel"
         ></app-keypad>
@@ -28,8 +29,10 @@
     <button mat-flat-button color="accent" (click)="step()" class="step-button">
       Simulate step
     </button>
-    <div *ngFor="let call of currentQueue | async">
-      {{ call.targetFloor }}
+    <div class="queue">
+      <div *ngFor="let call of currentQueue | async">
+        {{ call.targetFloor }}
+      </div>
     </div>
   </div>
   <div class="building">

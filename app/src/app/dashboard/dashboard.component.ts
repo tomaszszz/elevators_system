@@ -12,6 +12,7 @@ import { Elevator } from '../models/Elevator/Elevator';
 import { ElevatorService } from '../services/elevator.service';
 import { DirectionPanelComponent } from './direction-panel/direction-panel.component';
 import { KeypadComponent } from './keypad/keypad.component';
+import { stateResolver } from '../resolvers/state.resolver';
 
 @Component({
   selector: 'app-dashboard',
@@ -41,10 +42,12 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ state }) => {
-      console.log(state.elevators);
       this.elevators = state.elevators;
       this.floorsCount = state.floorsCount;
     });
+    this.currentQueue = this.elevatorService.getElevatorQueue(
+      this.currentElevator
+    );
   }
 
   step() {
@@ -63,5 +66,12 @@ export class DashboardComponent implements OnInit {
   onElevatorChange(id: string) {
     this.currentElevator = id;
     this.currentQueue = this.elevatorService.getElevatorQueue(id);
+  }
+
+  updateState() {
+    this.elevatorService.getState().subscribe((state) => {
+      this.elevators = state.elevators;
+      this.floorsCount = state.floorsCount;
+    });
   }
 }
