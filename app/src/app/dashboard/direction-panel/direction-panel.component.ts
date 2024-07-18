@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, inject } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,49 +17,50 @@ import { Elevator } from 'src/app/models/Elevator/Elevator';
 import { ElevatorService } from 'src/app/services/elevator.service';
 
 export interface CallFromHallway {
-    floor: number | null;
-    direction: number | null;
+  floor: number | null;
+  direction: number | null;
 }
 
 export enum Direction {
-    IDLE,
-    UP,
-    DOWN,
+  IDLE,
+  UP,
+  DOWN,
 }
 
 @Component({
-    selector: 'app-direction-panel',
-    standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatInputModule,
-        FormsModule,
-        IterateNTimesDirective,
-    ],
-    templateUrl: './direction-panel.component.html',
-    styleUrls: ['./direction-panel.component.scss'],
+  selector: 'app-direction-panel',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatInputModule,
+    FormsModule,
+    IterateNTimesDirective,
+  ],
+  templateUrl: './direction-panel.component.html',
+  styleUrls: ['./direction-panel.component.scss'],
 })
 export class DirectionPanelComponent {
-    @Input() elevators!: Elevator[];
-    @Input() floorsCount!: number;
-    callFromHallway: CallFromHallway = { floor: 0, direction: 0 };
+  @Input() elevators!: Elevator[];
+  @Input() floorsCount!: number;
+  callFromHallway: CallFromHallway = { floor: 0, direction: 0 };
 
-    elevatorService = inject(ElevatorService);
+  elevatorService = inject(ElevatorService);
 
-    directionPanel = new FormGroup({
-        floor: new FormControl(0, [Validators.required]),
-        direction: new FormControl(0, [Validators.required]),
-    });
+  directionPanel = new FormGroup({
+    floor: new FormControl(0, [Validators.required]),
+    direction: new FormControl(0, [Validators.required]),
+  });
 
-    submitCall() {
-        if (this.directionPanel.valid) {
-            this.elevatorService.callFromHallway(this.directionPanel.value).subscribe();
-            console.log(this.directionPanel.value);
-        }
+  submitCall() {
+    if (this.directionPanel.valid) {
+      this.elevatorService
+        .callFromHallway(this.directionPanel.value)
+        .subscribe();
     }
+  }
 }
