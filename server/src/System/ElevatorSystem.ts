@@ -58,31 +58,34 @@ export class ElevatorSystem implements ElevatorSystemOperations {
         if ([0, 1, 2].includes(direction) && targetFloor <= this.floorsCount) {
             const closestElevator =
                 this.findElevatorOnSameLevel(call) ||
-                this.findClosestElevatorTravellingInSameDirection(call) ||
+                this.findFirstElevatorTravellingInSameDirection(call) ||
                 this.findAnyClosestElevator(call);
-            closestElevator.callsQueue.enqueue({ targetFloor: call.targetFloor, direction: call.direction });
-            return closestElevator.id;
+
+            if (this.findElevatorOnSameLevel(call)) {
+                return closestElevator.id;
+            } else {
+                closestElevator.callsQueue.enqueue({ targetFloor: call.targetFloor, direction: call.direction });
+                return closestElevator.id;
+            }
         } else {
             throw new Error('Incorrect call');
         }
     }
 
-    private findClosestElevatorTravellingInSameDirection(call: Call): Elevator | undefined {
+    private findElevatorOnSameLevel(call: Call): Elevator | undefined {
+        return this.elevators.find((elevator) => elevator.floor === call.targetFloor);
+    }
+
+    private findFirstElevatorTravellingInSameDirection(call: Call): Elevator | undefined {
         let isAnyFound = false;
 
         let closestElevator: Elevator = this.elevators[0];
-        let minDiff: number = this.floorsCount;
 
         this.elevators.forEach((elevator) => {
-            const floorDiff = Math.abs(elevator.floor - call.targetFloor);
             const isOnTheWayUp = call.direction === Direction.UP && call.targetFloor > elevator.floor;
             const isOnTheWayDown = call.direction === Direction.DOWN && call.targetFloor < elevator.floor;
 
-            if (
-                (elevator.direction === call.direction && (isOnTheWayUp || isOnTheWayDown) && floorDiff < minDiff) ||
-                (elevator.direction === Direction.IDLE && floorDiff < minDiff)
-            ) {
-                minDiff = floorDiff;
+            if (elevator.direction === call.direction && (isOnTheWayUp || isOnTheWayDown)) {
                 closestElevator = elevator;
                 isAnyFound = true;
             }
@@ -108,10 +111,6 @@ export class ElevatorSystem implements ElevatorSystemOperations {
         });
 
         return closest;
-    }
-
-    private findElevatorOnSameLevel(call: Call): Elevator | undefined {
-        return this.elevators.find((elevator) => elevator.floor === call.targetFloor);
     }
 
     callFromElevator(elevatorId: string, targetFloor: number): void {

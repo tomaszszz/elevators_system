@@ -36,6 +36,29 @@ Dostępne zmienne:
 
 ## GUI
 
+Aplikacja składa się z dwóch części:
+
+-   widok budynku z windami (czarne bloczki w dolnej części symbolizują windy), każdy "wiersz" symbolizuje piętro, opisane numerem z lewej strony widoku budynku.
+-   interfejsów symulujących panele do wyboru piętra wewnątrz windy (zakładka **Elevator Keypad**), oraz panel wywołania windy z korytarza na danym piętrze (zakładka **Hallway panel**)
+
+### Elevator Keypad
+
+-   `Choose elevator` - wybierz windę z listy, w której chcesz się przemieścić na inne piętro
+-   `Enter target floor` - wprowadź piętro docelowe
+
+Przycisk `Submit Call` dodaje wywołanie do kolejki wybranej windy.
+
+### Hallway Panel
+
+-   `Choose floor` - wybierz piętro, na którym chcesz wywołać windę
+-   `Choose direction` - wybierz kierunek, w którym zamierzasz jechać
+
+Przycisk `Submit Call` w pierwszej kolejności sprawdza, czy przypadkiem któraś z wind już nie znajduje się na danym piętrze.
+Następnie szuka windy, która jedzie w tym samym kierunku.
+Jeżeli takiej nie ma - najbliższą windę, oraz dodaje do wywołanie do kolejki tej windy.
+
+Przycisk `Simulate Step` służy do przejścia pojedynczego kroku symulacji działania wind, czyli przetworzenia kolejki wezwań dla wszystkich wind.
+
 ## REST API
 
 ### GET `/step`

@@ -86,5 +86,6 @@ export class DashboardComponent implements OnInit {
 
   setCurrentElevatorId(id: string) {
     this.store.setCurrentElevatorId(id);
+    this.onElevatorChange(id);
   }
 }
