@@ -38,16 +38,33 @@ export class ElevatorSystem implements ElevatorSystemOperations {
         }
     }
 
+    state(): { floorsCount: number; elevators: Elevator[] } {
+        return { floorsCount: this.floorsCount, elevators: this.elevators };
+    }
+
     step() {
         this.elevators = this.elevators.map((elevator) => {
             const call = elevator.callsQueue.dequeue();
             if (call) {
-                const isLastCall = elevator.callsQueue.getValues().length === 0;
-                const direction = elevator.floor === call.targetFloor || isLastCall ? Direction.IDLE : call.direction;
-                return { ...elevator, floor: call.targetFloor, direction };
+                return { ...elevator, floor: call.targetFloor, direction: elevator.callsQueue.peek()?.direction || call.direction };
             }
             return { ...elevator, direction: Direction.IDLE };
         });
+    }
+
+    callFromHallway(targetFloor: number, direction: Direction): void {
+        const call: Call = { targetFloor, direction };
+
+        if ([0, 1, 2].includes(direction) && targetFloor <= this.floorsCount) {
+            const closestElevator =
+                this.findElevatorOnSameLevel(call) ||
+                this.findClosestElevatorTravellingInSameDirection(call) ||
+                this.findAnyClosestElevator(call);
+
+            closestElevator.callsQueue.enqueue({ targetFloor: call.targetFloor, direction: call.direction });
+        } else {
+            throw new Error('Incorrect call');
+        }
     }
 
     private findClosestElevatorTravellingInSameDirection(call: Call): Elevator | undefined {
@@ -97,38 +114,57 @@ export class ElevatorSystem implements ElevatorSystemOperations {
         return this.elevators.find((elevator) => elevator.floor === call.targetFloor);
     }
 
-    callFromHallway(targetFloor: number, direction: Direction): void {
-        const call: Call = { targetFloor, direction };
-
-        if ([0, 1, 2].includes(direction) && targetFloor <= this.floorsCount) {
-            const closestElevator =
-                this.findElevatorOnSameLevel(call) ||
-                this.findClosestElevatorTravellingInSameDirection(call) ||
-                this.findAnyClosestElevator(call);
-
-            closestElevator.callsQueue.enqueue({ targetFloor: call.targetFloor, direction: call.direction });
-        } else {
-            throw new Error('Incorrect call');
-        }
-    }
-
     callFromElevator(elevatorId: string, targetFloor: number): void {
         const call: CallFromElevator = { elevatorId, targetFloor };
 
         if (targetFloor <= this.floorsCount) {
-            this.elevators.forEach((elevator) => {
+            this.elevators = this.elevators.map((elevator) => {
                 if (elevator.id === call.elevatorId) {
-                    const direction: Direction =
-                        call.targetFloor < (elevator.callsQueue.peek()?.targetFloor || elevator.floor) ? Direction.DOWN : Direction.UP;
-                    return elevator.callsQueue.enqueue({ targetFloor: call.targetFloor, direction });
+                    const direction = this.getDirection(elevator, targetFloor);
+                    const newQueue = this.insertCallInQueue(elevator, { targetFloor, direction });
+
+                    return { ...elevator, direction, callsQueue: newQueue } as Elevator;
                 }
+                return elevator;
             });
         } else {
             throw new Error('Incorrect call');
         }
     }
 
-    state(): { floorsCount: number; elevators: Elevator[] } {
-        return { floorsCount: this.floorsCount, elevators: this.elevators };
+    private getDirection(elevator: Elevator, targetFloor: number): Direction {
+        const currentFloor = elevator.floor;
+        let direction = elevator.direction;
+
+        if (direction === Direction.IDLE) {
+            direction = targetFloor > currentFloor ? Direction.UP : Direction.DOWN;
+        }
+
+        return direction;
+    }
+
+    private insertCallInQueue(elevator: Elevator, newCall: Call): Queue<Call> {
+        const newQueue = new Queue<Call>();
+        let inserted = false;
+
+        // Iterate through the existing queue and insert the new call in the correct position
+        while (!elevator.callsQueue.isEmpty()) {
+            const currentCall = elevator.callsQueue.dequeue()!;
+            if (
+                !inserted &&
+                ((newCall.direction === Direction.UP && currentCall.targetFloor > newCall.targetFloor) ||
+                    (newCall.direction === Direction.DOWN && currentCall.targetFloor < newCall.targetFloor))
+            ) {
+                newQueue.enqueue(newCall);
+                inserted = true;
+            }
+            newQueue.enqueue(currentCall);
+        }
+
+        if (!inserted) {
+            newQueue.enqueue(newCall);
+        }
+
+        return newQueue;
     }
 }

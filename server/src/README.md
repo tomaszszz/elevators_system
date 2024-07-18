@@ -34,26 +34,34 @@ Dostępne zmienne:
 -   `ELEVATORS_COUNT = 10` - liczba wind
 -   `FLOORS = 12` - liczba pięter
 
+## GUI
+
 ## REST API
 
-### Usługi POST
+### GET `/step`
 
-#### `/callFromElevator` - polecenie z wewnątrz windy
+Wywołanie metody step() na obiekcie elevatorSystem, wykonujące krok symulacji systemu wind.
 
-**Body:**
+### GET `/state`
 
--   _elevatorId_ - ID windy z której wysyłane jest wywołanie
--   _targetFloor_ - docelowe piętro, na które winda ma jechać
+Pobranie aktualnego stanu systemu wind, zwracającego informacje o liczbie pięter i stanie każdej z wind.
 
-#### `/callFromHallway` - polecenie z korytarza
+### GET `/elevatorQueue`
 
-**Body:**
+Pobranie kolejkowania wezwań dla konkretnej windy na podstawie id. Zwracane są wartości kolejki wezwań.
 
--   _floor_ - piętro na którym znajduje się panel wywołań
--   _direction_ - kierunek, w którym chcemy jechać
+### POST `/callFromElevator`
 
-### Usługi GET
+Obsługa wezwania z wnętrza windy na konkretne piętro. Przyjmuje `elevatorId` i `targetFloor` jako parametry ciała żądania.
 
-#### `/step` - krok symulacji, przemieszczenie windy/wind
+### POST `/callFromHallway`
 
-#### `/state` - status systemu
+Obsługa wezwania z zewnątrz windy (korytarz). Przyjmuje `floor` (piętro) i `direction` (kierunek) jako parametry ciała żądania.
+
+### Opis metod
+
+-   `initElevators()`: Inicjalizuje windy na podstawie liczby określonej podczas tworzenia obiektu klasy.
+-   `state()`: Zwraca aktualny stan systemu wind, w tym liczbę pięter i listę obiektów wind.
+-   `step()`: Wykonuje jedno przejście symulacji działania wind, przetwarzając kolejkę wezwań dla każdej windy.
+-   `callFromHallway(targetFloor, direction)`: Obsługuje wezwanie windy z poziomu korytarza, szukając najbliższej windy do obsługi.
+-   `callFromElevator(elevatorId, targetFloor)`: Obsługuje wezwanie windy z wnętrza windy, przekierowując żądanie do odpowiedniej windy w systemie.
