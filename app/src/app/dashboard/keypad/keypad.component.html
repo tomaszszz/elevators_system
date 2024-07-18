@@ -5,6 +5,8 @@
       #id
       formControlName="elevatorId"
       (selectionChange)="onElevatorChoose(id.value)"
+      [ngModel]="getCurrentElevatorId()"
+      (ngModelChange)="setCurrentElevatorId($event)"
     >
       <mat-option *ngFor="let elevator of elevators" [value]="elevator.id">{{
         elevator.id

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -15,6 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { IterateNTimesDirective } from 'src/app/common/iterate-ntimes.directive';
 import { Elevator } from 'src/app/models/Elevator/Elevator';
 import { ElevatorService } from 'src/app/services/elevator.service';
+import { StoreService } from 'src/app/services/store.service';
 import { CallFromHallway } from '../../models/Common/Call/CallFromHallway';
 
 @Component({
@@ -36,10 +37,16 @@ import { CallFromHallway } from '../../models/Common/Call/CallFromHallway';
 })
 export class DirectionPanelComponent {
   @Input() elevators!: Elevator[];
+
   @Input() floorsCount!: number;
+
+  @Output() onCall: EventEmitter<string> = new EventEmitter<string>();
+
   callFromHallway: CallFromHallway = { floor: 0, direction: 0 };
 
-  elevatorService = inject(ElevatorService);
+  private elevatorService = inject(ElevatorService);
+
+  private store = inject(StoreService);
 
   directionPanel = new FormGroup({
     floor: new FormControl(0, [Validators.required]),
@@ -50,7 +57,10 @@ export class DirectionPanelComponent {
     if (this.directionPanel.valid) {
       this.elevatorService
         .callFromHallway(this.directionPanel.value)
-        .subscribe();
+        .subscribe((calledElevator) => {
+          this.store.setCurrentElevatorId(calledElevator.id);
+          this.onCall.next(calledElevator.id);
+        });
     }
   }
 }

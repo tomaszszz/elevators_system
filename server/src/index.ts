@@ -50,7 +50,7 @@ app.post('/callFromHallway', (req: Request, res: Response) => {
     const floor: string = req.body.floor as string;
     const direction: string = req.body.direction as string;
 
-    res.send(elevatorSystem.callFromHallway(+floor, +direction));
+    res.send({ id: elevatorSystem.callFromHallway(+floor, +direction) });
 });
 
 app.listen(port, () => {

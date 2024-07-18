@@ -21,6 +21,7 @@
           <mat-icon class="tab-icon">directions_walk</mat-icon> Hallway panel
         </ng-template>
         <app-direction-panel
+          (onCall)="onElevatorChange($event)"
           [floorsCount]="floorsCount"
           class="panel"
         ></app-direction-panel>
@@ -29,16 +30,18 @@
     <button mat-flat-button color="accent" (click)="step()" class="step-button">
       Simulate step
     </button>
-    <div class="queue">
-      <div *ngFor="let call of currentQueue | async">
-        {{ call.targetFloor }}
-      </div>
-    </div>
+    <mat-chip-set class="mat-mdc-chip-set-stacked queue">
+      <span class="title-center">Current elevator queue</span>
+      <mat-chip *ngFor="let call of currentQueue | async">
+        Floor {{ call.targetFloor }}
+      </mat-chip>
+    </mat-chip-set>
   </div>
   <div class="building">
     <div class="floor" *iterateNTimes="floorsCount; index as floor">
       <span class="label"> {{ floor }}</span>
       <app-elevator
+        (onClick)="setCurrentElevatorId(elevator.id)"
         *ngFor="let elevator of elevators"
         class="elevator"
         [ngClass]="floor === elevator.floor ? '' : 'hide'"

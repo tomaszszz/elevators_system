@@ -1,7 +1,10 @@
 :host {
-    background: #000;
-    width: 2rem;
-    height: 3rem;
-    color: #fff;
-    text-align: center;
+  width: 2rem;
+  height: 3rem;
+  color: #fff;
+  text-align: center;
+
+  &:hover {
+    cursor: pointer;
+  }
 }

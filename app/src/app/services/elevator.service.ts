@@ -3,7 +3,9 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CallFromHallway } from '../models/Common/Call/CallFromHallway';
 import { CallInsideElevator } from '../models/Common/Call/CallInsideElevator';
+import { Queue } from '../models/Common/Queue';
 import { Elevator } from '../models/Elevator/Elevator';
+import { Call } from '../models/Common/Call/Call';
 
 export const BASE_URL = 'http://localhost:3000';
 
@@ -17,20 +19,16 @@ export class ElevatorService {
     );
   }
 
-  getElevatorQueue(
-    id: string
-  ): Observable<CallFromHallway[] | CallInsideElevator[]> {
-    return this.http.get<CallFromHallway[] | CallInsideElevator[]>(
-      `${BASE_URL}/elevatorQueue?id=${id}`
-    );
+  getElevatorQueue(id: string): Observable<Queue<Call>> {
+    return this.http.get<Queue<Call>>(`${BASE_URL}/elevatorQueue?id=${id}`);
   }
 
   callFromElevator(call: Partial<CallInsideElevator>): Observable<any> {
     return this.http.post(`${BASE_URL}/callFromElevator`, call);
   }
 
-  callFromHallway(call: Partial<CallFromHallway>): Observable<any> {
-    return this.http.post(`${BASE_URL}/callFromHallway`, call);
+  callFromHallway(call: Partial<CallFromHallway>): Observable<{ id: string }> {
+    return this.http.post<{ id: string }>(`${BASE_URL}/callFromHallway`, call);
   }
 
   step(): Observable<any> {

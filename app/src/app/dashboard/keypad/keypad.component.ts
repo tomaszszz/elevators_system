@@ -16,6 +16,7 @@ import { IterateNTimesDirective } from 'src/app/common/iterate-ntimes.directive'
 import { Elevator } from 'src/app/models/Elevator/Elevator';
 import { ElevatorService } from 'src/app/services/elevator.service';
 import { CallInsideElevator } from '../../models/Common/Call/CallInsideElevator';
+import { StoreService } from 'src/app/services/store.service';
 
 @Component({
   selector: 'app-keypad',
@@ -38,18 +39,21 @@ export class KeypadComponent {
   @Input() elevators!: Elevator[];
 
   @Output() elevatorChange = new EventEmitter<string>();
+
   @Output() onCallSubmitted = new EventEmitter<void>();
 
   callInsideElevator: CallInsideElevator = { elevatorId: '1', targetFloor: 0 };
 
-  elevatorService = inject(ElevatorService);
+  private elevatorService = inject(ElevatorService);
+
+  private store = inject(StoreService);
 
   keypadForm = new FormGroup({
     elevatorId: new FormControl('', [Validators.required]),
     targetFloor: new FormControl(0, [Validators.required]),
   });
 
-  submitCall() {
+  submitCall(): void {
     if (this.keypadForm.valid) {
       this.elevatorService
         .callFromElevator(this.keypadForm.value)
@@ -63,7 +67,15 @@ export class KeypadComponent {
     }
   }
 
-  onElevatorChoose(id: string) {
+  onElevatorChoose(id: string): void {
     this.elevatorChange.next(id);
+  }
+
+  setCurrentElevatorId(id: string): void {
+    return this.store.setCurrentElevatorId(id);
+  }
+
+  getCurrentElevatorId(): string {
+    return this.store.getCurrentElevatorId();
   }
 }

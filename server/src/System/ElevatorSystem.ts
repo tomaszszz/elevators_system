@@ -52,7 +52,7 @@ export class ElevatorSystem implements ElevatorSystemOperations {
         });
     }
 
-    callFromHallway(targetFloor: number, direction: Direction): void {
+    callFromHallway(targetFloor: number, direction: Direction): string {
         const call: Call = { targetFloor, direction };
 
         if ([0, 1, 2].includes(direction) && targetFloor <= this.floorsCount) {
@@ -60,8 +60,8 @@ export class ElevatorSystem implements ElevatorSystemOperations {
                 this.findElevatorOnSameLevel(call) ||
                 this.findClosestElevatorTravellingInSameDirection(call) ||
                 this.findAnyClosestElevator(call);
-
             closestElevator.callsQueue.enqueue({ targetFloor: call.targetFloor, direction: call.direction });
+            return closestElevator.id;
         } else {
             throw new Error('Incorrect call');
         }
