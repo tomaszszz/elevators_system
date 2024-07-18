@@ -10,7 +10,7 @@
         </ng-template>
         <app-keypad
           (elevatorChange)="onElevatorChange($event)"
-          (onCallSubmitted)="updateState()"
+          (onCall)="updateState()"
           [elevators]="elevators"
           class="panel"
         ></app-keypad>

@@ -64,6 +64,7 @@ export class ElevatorSystem implements ElevatorSystemOperations {
             if (this.findElevatorOnSameLevel(call)) {
                 return closestElevator.id;
             } else {
+                this.callFromElevator(closestElevator.id, call.targetFloor);
                 closestElevator.callsQueue.enqueue({ targetFloor: call.targetFloor, direction: call.direction });
                 return closestElevator.id;
             }

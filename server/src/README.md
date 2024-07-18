@@ -34,21 +34,33 @@ Dostępne zmienne:
 -   `ELEVATORS_COUNT = 10` - liczba wind
 -   `FLOORS = 12` - liczba pięter
 
+# Algorytm
+
+Algorytm tak układa wywołania, żeby zaliczyć wszystkie piętra z kolejki, po drodze do najwyższego docelowego piętra.
+
+FCFS jest na tyle nieoptymalny, że przykładowo przy trasie z piętra 1 do 10, kilka osób kliknie piętro 4, 5 i 6, to osoby chcące jechać na 6 piętro, będą musiały czekać, aż winda pokona dłuższą trasę na piętro 10, niepotrzebnie wróci się na 4 a następnie 5 i 6.
+
+Rozwiązanie użyte w programie umożliwia optymalizację drogi windy i tańszy koszt jej utrzymania.
+
 ## GUI
 
-Aplikacja składa się z dwóch części:
+### Aplikacja składa się z dwóch części:
 
 -   widok budynku z windami (czarne bloczki w dolnej części symbolizują windy), każdy "wiersz" symbolizuje piętro, opisane numerem z lewej strony widoku budynku.
 -   interfejsów symulujących panele do wyboru piętra wewnątrz windy (zakładka **Elevator Keypad**), oraz panel wywołania windy z korytarza na danym piętrze (zakładka **Hallway panel**)
 
-### Elevator Keypad
+### Interakcja z programem
+
+Kliknięcie na ikonę windy w widoku budynku umożliwia zmianę "aktywnej" windy, w tym widoku kolejki z lewej strony, pod panelem sterującym.
+
+#### Elevator Keypad
 
 -   `Choose elevator` - wybierz windę z listy, w której chcesz się przemieścić na inne piętro
 -   `Enter target floor` - wprowadź piętro docelowe
 
 Przycisk `Submit Call` dodaje wywołanie do kolejki wybranej windy.
 
-### Hallway Panel
+#### Hallway Panel
 
 -   `Choose floor` - wybierz piętro, na którym chcesz wywołać windę
 -   `Choose direction` - wybierz kierunek, w którym zamierzasz jechać

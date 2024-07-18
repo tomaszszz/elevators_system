@@ -69,6 +69,7 @@ export class DashboardComponent implements OnInit {
   onElevatorChange(id: string) {
     this.currentElevator = id;
     this.updateCurrentElevatorState();
+    this.updateState();
   }
 
   updateState() {
