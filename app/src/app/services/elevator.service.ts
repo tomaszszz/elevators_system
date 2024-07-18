@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CallFromHallway } from '../dashboard/direction-panel/direction-panel.component';
-import { CallInsideElevator } from '../dashboard/keypad/keypad.component';
+import { CallFromHallway } from '../models/Common/Call/CallFromHallway';
+import { CallInsideElevator } from '../models/Common/Call/CallInsideElevator';
 import { Elevator } from '../models/Elevator/Elevator';
 
 export const BASE_URL = 'http://localhost:3000';

@@ -7,7 +7,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { ElevatorComponent } from '../elevator/elevator.component';
-import { IterateNTimesDirective } from '../iterate-ntimes.directive';
+import { IterateNTimesDirective } from '../common/iterate-ntimes.directive';
 import { Elevator } from '../models/Elevator/Elevator';
 import { ElevatorService } from '../services/elevator.service';
 import { DirectionPanelComponent } from './direction-panel/direction-panel.component';
