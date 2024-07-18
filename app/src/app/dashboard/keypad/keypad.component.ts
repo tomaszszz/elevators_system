@@ -15,11 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { IterateNTimesDirective } from 'src/app/iterate-ntimes.directive';
 import { Elevator } from 'src/app/models/Elevator/Elevator';
 import { ElevatorService } from 'src/app/services/elevator.service';
-
-export interface CallInsideElevator {
-  elevatorId: string | null;
-  targetFloor: number | null;
-}
+import { CallInsideElevator } from '../../models/Common/Call/CallInsideElevator';
 
 @Component({
   selector: 'app-keypad',

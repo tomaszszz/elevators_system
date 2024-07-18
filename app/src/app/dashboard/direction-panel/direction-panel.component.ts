@@ -15,17 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { IterateNTimesDirective } from 'src/app/iterate-ntimes.directive';
 import { Elevator } from 'src/app/models/Elevator/Elevator';
 import { ElevatorService } from 'src/app/services/elevator.service';
-
-export interface CallFromHallway {
-  floor: number | null;
-  direction: number | null;
-}
-
-export enum Direction {
-  IDLE,
-  UP,
-  DOWN,
-}
+import { CallFromHallway } from '../../models/Common/Call/CallFromHallway';
 
 @Component({
   selector: 'app-direction-panel',
